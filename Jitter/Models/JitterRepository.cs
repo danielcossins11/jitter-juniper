@@ -25,5 +25,40 @@ namespace Jitter.Models
             var query = from users in _context.JitterUsers select users;
             return query.ToList();
         }
+
+        public JitterUser GetUserByHandle(string handle)
+        {
+            var query = from users in _context.JitterUsers where users.Handle == handle select users;
+
+            query.Single();
+
+            throw new NotImplementedException();
+        }
+
+        public bool IsHandleAvailable(string handle)
+        {
+            bool available = false;
+            try
+            {
+                JitterUser some_user = GetUserByHandle(handle);
+                if (some_user == null)
+                {
+                    available = true;
+                }
+            }
+            catch(InvalidOperationException)
+            {
+                
+            }
+            
+            return available;
+        }
+
+        public List<JitterUser> SearchByHandle(string handle)
+        {
+            var query = from users in _context.JitterUsers where users.Handle == handle select users;
+            List<JitterUser> found_users = query.Where(user => user.Handle.Contains(handle)).ToList();
+            return found_users.Sort();
+        }
     }
 }

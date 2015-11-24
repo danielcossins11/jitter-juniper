@@ -6,7 +6,7 @@ using System.Web;
 
 namespace Jitter.Models
 {
-    public class JitterUser
+    public class JitterUser : IComparable
     {
         [Key]
         public int JitterUserId { get; set; }
