@@ -17,7 +17,12 @@ namespace Jitter.Controllers
         {
             ViewBag.Message = "Your application description page.";
 
-            return View();
+            List<string> list = new List<string>();
+            list.Add("Timmey");
+            list.Add("Chef");
+            list.Add("Greg");
+
+            return View(list);
         }
 
         public ActionResult Contact()
