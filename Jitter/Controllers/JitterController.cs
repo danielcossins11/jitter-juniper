@@ -3,16 +3,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Jitter.Models;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
 
 namespace Jitter.Controllers
 {
     public class JitterController : Controller
     {
+
+        public JitterRepository Repo { get; set; }
+
+        public JitterController() : base()
+        {
+            Repo = new JitterRepository();
+        }
+
         // GET: Jitter
         // Maybe the Public feed here?
         public ActionResult Index()
         {
-            return View();
+            List<Jot> my_jots = Repo.GetAllJots();
+            // How you send a list of anything to a view
+            return View(my_jots);
         }
 
         [Authorize]
@@ -24,7 +37,27 @@ namespace Jitter.Controllers
         [Authorize]
         public ActionResult UserFeed()
         {
-            return View();
+            // How to get ApplicationUser and JitterUser (There are 3 ways!)
+            /* V1
+            ApplicationUserManager _userManager = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
+            string userId = User.Identity.GetUserId();
+            ApplicationUser app_user = _userManager.FindById(userId);
+            JitterUser me = Repo.GetAllUsers().Where(u => u.RealUser.Id == userId).Single();
+            */
+
+            string user_id = User.Identity.GetUserId();
+            /* V2
+            string user_id = User.Identity.GetUserId();
+            ApplicationUser real_user = Repo.Context.Users.FirstOrDefault(u => u.Id == user_id);
+            JitterUser me = Repo.GetAllUsers().Where(u => real_user.Id == u.RealUser.Id).Single();
+            */
+
+
+            /* V3 */
+            JitterUser me = Repo.GetAllUsers().Where(u => u.RealUser.Id == user_id).Single();
+            
+            List<Jot> list_of_jots = Repo.GetUserJots(me);
+            return View(list_of_jots);
         }
 
         // GET: Jitter/Details/5
